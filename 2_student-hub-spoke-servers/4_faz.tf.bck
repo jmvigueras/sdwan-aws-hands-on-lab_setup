@@ -1,0 +1,27 @@
+// Create FAZ
+module "faz" {
+  source = "./modules/faz"
+
+  prefix         = local.prefix
+  region         = local.region
+  keypair        = aws_key_pair.keypair.key_name
+  rsa-public-key = tls_private_key.ssh.public_key_openssh
+  api_key        = random_string.api_key.result
+
+  faz_build    = "build2308"
+  license_type = "byol"
+  license_file = "./licenses/licenseFAZ.lic"
+
+  nsg_ids = {
+    public  = [module.hub_vpc.sg_ids["allow_all"]]
+    private = [module.hub_vpc.sg_ids["bastion"]]
+  }
+  subnet_ids = {
+    public  = module.hub_vpc.subnet_ids["public"]
+    private = module.hub_vpc.subnet_ids["bastion"]
+  }
+  subnet_cidrs = {
+    public  = module.hub_vpc.subnet_cidrs["public"]
+    private = module.hub_vpc.subnet_cidrs["bastion"]
+  }
+}
