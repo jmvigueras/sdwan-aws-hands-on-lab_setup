@@ -1,10 +1,10 @@
 locals {
   # Provide a common tag prefix value that will be used in the name tag for all resources
-  prefix = "xs23"
+  prefix = "aws"
 
   # Tags
   tags = {
-    Project = "xpertsummit23"
+    Project = "aws2024hol"
   }
 
   # Region to deploy AWS Cloud9 instances
@@ -18,5 +18,5 @@ locals {
   vpc_cloud9_cidr = "172.30.0.0/23"
 
   # Path prefix for users (regex /path-prefix/)
-  user_path_prefix = "/xpertsummit23/"
+  user_path_prefix = "/aws2024hol/"
 }

@@ -25,8 +25,15 @@ output "eu_sdwan_ni_list" {
 }
 
 #-----------------------------------------------------------------------------------------------------
-# LAB Servers
+# LAB Servers - Variables used in 3_ and 4_ steps of LAB setup
 #-----------------------------------------------------------------------------------------------------
+output "hub" {
+  value = {
+    public_ip   = local.eu_hub_vpn_fqdn
+    public_fqdn = local.eu_hub_vpn_fqdn
+  }
+}
+
 output "lab_server" {
   value = {
     private_ip = module.eu_hub_lab_server.vm["private_ip"]

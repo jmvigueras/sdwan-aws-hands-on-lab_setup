@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >
-    <title>Xpert Summit 2023 – Fortinet </title>
+    <title>Cloud worshop – Fortinet </title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
         function hide_studentdata(){
@@ -28,9 +28,9 @@
   </script> 
   </head>
   <body>
-    <h1><span style="color:Red">Fortinet</span> - AWS SDWAN Hand-on-lab</h1>
+    <h1><span style="color:Red">Fortinet</span> - AWS sdwan Hands-on Lab</h1>
     <h2>Cloud workshop</h2>
-    <h3>Guía y repositorio del laboratorio: <a href="https://github.com/jmvigueras/sdwan-aws-hand-on-lab">SDWAN AWS Lab GitRepo</a></h3>
+    <h3>Guía y repositorio del laboratorio: <a href="https://github.com/jmvigueras/sdwan-aws-hands-on-lab">AWS sdwan Lab GitRepo</a></h3>
     <hr/>
     <h3>Student data: </h3>
         <label for="email">Enter your email:</label>

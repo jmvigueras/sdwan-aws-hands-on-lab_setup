@@ -37,8 +37,8 @@ locals {
   lab_srv_private_ip = cidrhost(module.eu_hub_vpc.subnet_cidrs["az1"]["bastion"], 10) // "x.x.x.202"
 
   # External ID token generated in deployent student
-  //externalid_token = data.terraform_remote_state.student_accounts.outputs.externalid_token
-  externalid_token = "imgafmwkiozsgxxt42ixk5447ypz64"
+  externalid_token = data.terraform_remote_state.student_accounts.outputs.externalid_token
+  //externalid_token = "imgafmwkiozsgxxt42ixk5447ypz64"
   random_url_db    = trimspace(random_string.db_url.result)
 
   # Instance type 
@@ -46,7 +46,7 @@ locals {
 
   # Git repository
   git_uri          = "https://github.com/jmvigueras/sdwan-aws-hands-on-lab_setup.git"
-  git_uri_app_path = "/sdwan-aws-hand-on-lab_setup/0_modules/hub-server/"
+  git_uri_app_path = "/sdwan-aws-hands-on-lab_setup/0_modules/hub-server/"
 
   # DB
   db = {
@@ -71,12 +71,12 @@ locals {
   # General variables 
   eu_hub_number_peer_az = 1
   eu_hub_cluster_type   = "fgsp"
-  eu_hub_vpc_cidr       = "10.1.0.0/24"
+  eu_hub_vpc_cidr       = "10.10.0.0/24"
 
   # VPN HUB variables
   eu_id           = "EMEA"
-  eu_hub_bgp_asn  = "65001" // iBGP RR server
-  eu_hub_cidr     = "10.1.0.0/16"
+  eu_hub_bgp_asn  = "65010" // iBGP RR server
+  eu_hub_cidr     = "10.10.0.0/16"
   eu_hub_vpn_cidr = "172.16.100.0/24" // VPN DialUp spokes cidr
   eu_hub_vpn_ddns = "eu-hub-vpn"
   eu_hub_vpn_fqdn = "${local.eu_hub_vpn_ddns}.${local.route53_zone_name}"
@@ -92,13 +92,13 @@ locals {
   eu_hub_to_us_hub_vxlan_vni  = "1103"           // VXLAN to US VNI ID
 
   # EU HUB TGW
-  eu_tgw_cidr    = "10.1.10.0/24"
+  eu_tgw_cidr    = "10.10.10.0/24"
   eu_tgw_bgp_asn = "65011"
 
   # EU VPC SPOKE TO TGW
   eu_spoke_to_tgw_number = 2
   eu_spoke_to_tgw = { for i in range(0, local.eu_spoke_to_tgw_number) :
-    "eu-spoke-to-tgw-${i}" => "10.1.${i + 100}.0/24"
+    "eu-spoke-to-tgw-${i}" => "10.10.${i + 100}.0/24"
   }
 
   #-----------------------------------------------------------------------------------------------------
@@ -113,9 +113,10 @@ locals {
   eu_spoke_bgp_asn = "65000"
 
   eu_sdwan_spoke = [for i in range(0, local.eu_sdwan_number) :
-    { "id"      = "${local.eu_region}-office-${i + 1}"
-      "cidr"    = "192.168.${i + 0}.0/24"
-      "bgp_asn" = local.eu_spoke_bgp_asn
+    { "id"         = "${local.eu_region}-office-${i}"
+      "cidr"       = "10.1.${i}.0/24"
+      "bgp_asn"    = local.eu_spoke_bgp_asn
+      "student_id" = "${local.prefix}-${local.eu_region}-user-${i}"
     }
   ]
 
@@ -135,11 +136,11 @@ locals {
   # General variables 
   eu_op_number_peer_az = 1
   eu_op_cluster_type   = "fgcp"
-  eu_op_vpc_cidr       = "10.2.0.0/24"
+  eu_op_vpc_cidr       = "10.20.0.0/24"
 
   # VPN HUB variables
-  eu_op_bgp_asn  = "65002"
-  eu_op_cidr     = "10.2.0.0/16"
+  eu_op_bgp_asn  = "65020"
+  eu_op_cidr     = "10.20.0.0/16"
   eu_op_vpn_cidr = "172.20.100.0/24" // VPN DialUp spokes cidr
 
   eu_op_vpn_ddns = "eu-op-vpn"
@@ -158,24 +159,24 @@ locals {
   # General variables 
   us_hub_number_peer_az = 1
   us_hub_cluster_type   = "fgcp"
-  us_hub_vpc_cidr       = "10.3.0.0/24"
+  us_hub_vpc_cidr       = "10.30.0.0/24"
 
   # VPN HUB variables
   us_id           = "NORAM"
-  us_hub_bgp_asn  = "65003"
-  us_hub_cidr     = "10.3.0.0/16"
+  us_hub_bgp_asn  = "65030"
+  us_hub_cidr     = "10.30.0.0/16"
   us_hub_vpn_cidr = "172.30.100.0/24" // VPN DialUp spokes cidr
   us_hub_vpn_ddns = "us-hub-vpn"
   us_hub_vpn_fqdn = "${local.us_hub_vpn_ddns}.${local.route53_zone_name}"
 
   # US HUB TGW
-  us_tgw_cidr    = "10.3.10.0/24"
-  us_tgw_bgp_asn = "65013"
+  us_tgw_cidr    = "10.30.10.0/24"
+  us_tgw_bgp_asn = "65031"
 
   # US VPC SPOKE TO TGW
   us_spoke_to_tgw_number = 1
   us_spoke_to_tgw = { for i in range(0, local.us_spoke_to_tgw_number) :
-    "us-spoke-to-tgw-${i}" => "10.3.${i + 100}.0/24"
+    "us-spoke-to-tgw-${i}" => "10.30.${i + 100}.0/24"
   }
 
   #-----------------------------------------------------------------------------------------------------
@@ -190,7 +191,7 @@ locals {
   us_spoke_bgp_asn = "65000"
 
   us_sdwan_spoke = [for i in range(0, local.us_sdwan_number) :
-    { "id"      = "us-office-${i + 1}"
+    { "id"      = "us-office-${i}"
       "cidr"    = "192.168.${i + 200}.0/24"
       "bgp_asn" = local.us_spoke_bgp_asn
     }

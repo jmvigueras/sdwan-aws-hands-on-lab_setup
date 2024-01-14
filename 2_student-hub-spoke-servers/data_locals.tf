@@ -349,6 +349,21 @@ locals {
 
 }
 
+#-----------------------------------------------------------------------------------------------------
+# DATA
+#-----------------------------------------------------------------------------------------------------
+# Read data from deployment 1_student-accounts
+data "terraform_remote_state" "student_accounts" {
+  backend = "local"
+  config = {
+    path = "../1_student-accounts/terraform.tfstate"
+  }
+}
+  
+data "http" "my-public-ip" {
+  url = "http://ifconfig.me/ip"
+}
+
 # Create key-pairs
 resource "tls_private_key" "ssh" {
   algorithm = "RSA"
@@ -386,6 +401,3 @@ resource "random_string" "db_url" {
   numeric = false
 }
 
-data "http" "my-public-ip" {
-  url = "http://ifconfig.me/ip"
-}

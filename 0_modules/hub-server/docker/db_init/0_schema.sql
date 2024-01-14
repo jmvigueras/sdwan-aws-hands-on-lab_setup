@@ -21,9 +21,6 @@ CREATE TABLE `students` (
   `server_test` tinyint(1) DEFAULT '0',
   `server_check` varchar(255) COLLATE latin1_spanish_ci DEFAULT NULL,
   `cloud9_url` varchar(255) COLLATE latin1_spanish_ci DEFAULT NULL,
-  `hub_fgt_pip` varchar(255) COLLATE latin1_spanish_ci DEFAULT NULL,
-  `user_forticloud` varchar(255) COLLATE latin1_spanish_ci DEFAULT NULL,
-  `pass_forticloud` varchar(255) COLLATE latin1_spanish_ci DEFAULT NULL,
-  `account_forticloud` varchar(255) COLLATE latin1_spanish_ci DEFAULT NULL,
+  `hub_fgt_fqdn` varchar(255) COLLATE latin1_spanish_ci DEFAULT NULL,
   PRIMARY KEY (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_spanish_ci;

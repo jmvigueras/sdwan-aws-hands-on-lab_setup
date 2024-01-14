@@ -3,7 +3,7 @@
 #--------------------------------------------------------------------------------------------
 # Create master node LAB server
 module "eu_hub_lab_server" {
-  source = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//vm?ref=v0.0.2"
+  source = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//vm?ref=v0.0.3"
 
   prefix        = "${local.prefix}-eu-hub"
   keypair       = aws_key_pair.eu_keypair.key_name
@@ -18,7 +18,7 @@ module "eu_hub_lab_server" {
   tags = {
     Owner   = "${local.prefix}-lab-owner"
     Name    = "${local.prefix}-lab-portal"
-    Project = local.tags["Project"]
+    Project = "${local.tags["Project"]}-lab-server"
   }
 }
 # Create user-data for server
@@ -76,13 +76,18 @@ data "template_file" "srv_user_data_nginx_html" {
 # Crate test VM in bastion subnet
 module "eu_sdwan_vm" {
   for_each = { for i, v in local.eu_sdwan_spoke : i => v }
-  source   = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//vm?ref=v0.0.2"
+  source   = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//vm?ref=v0.0.3"
 
   prefix   = "${local.prefix}-${each.value["id"]}"
   keypair  = aws_key_pair.eu_keypair.key_name
-  linux_os = "amazon"
 
   subnet_id       = module.eu_sdwan_vpc[each.key].subnet_ids["az1"]["bastion"]
   subnet_cidr     = module.eu_sdwan_vpc[each.key].subnet_cidrs["az1"]["bastion"]
   security_groups = [module.eu_sdwan_vpc[each.key].sg_ids["default"]]
+
+  tags = {
+    Owner   = "${local.prefix}-lab-owner"
+    Name    = "${local.prefix}-${each.value["id"]}-vm"
+    Project = each.value["student_id"]
+  }
 }
