@@ -10,15 +10,13 @@ next
 end
 
 config firewall address
-edit "sdn-lab-server"
-set type dynamic
-set sdn "aws-ha"
-set filter "Tag.project=${tag_project_server}"
-next
 edit "sdn-student-server"
 set type dynamic
 set sdn "aws-ha"
-set filter "Tag.project=${tag_project_student}"
+set filter "Tag.Owner=${tag_student}"
+next
+edit "h-lab-server"
+set subnet ${lab_server_ip} 255.255.255.255
 next
 end
 
@@ -28,7 +26,7 @@ set name "allow-lab-server-health-check"
 set srcintf "any"
 set dstintf "${private_port}"
 set action accept
-set srcaddr "sdn-lab-server"
+set srcaddr "h-lab-server"
 set dstaddr "sdn-student-server"
 set schedule "always"
 set service "ALL"

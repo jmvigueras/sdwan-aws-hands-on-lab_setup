@@ -7,7 +7,8 @@
 # Create VPC for hub EU
 module "eu_sdwan_vpc" {
   for_each = { for i, v in local.eu_sdwan_spoke : i => v }
-  source   = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//vpc?ref=v0.0.3"
+  source   = "jmvigueras/ftnt-aws-modules/aws//modules/vpc"
+  version  = "0.0.2"
 
   prefix     = "${local.prefix}-${each.value["id"]}"
   admin_cidr = local.admin_cidr
@@ -22,7 +23,8 @@ module "eu_sdwan_vpc" {
 # Create FGT NIs
 module "eu_sdwan_nis" {
   for_each = { for i, v in local.eu_sdwan_spoke : i => v }
-  source   = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//fgt_ni_sg?ref=v0.0.3"
+  source   = "jmvigueras/ftnt-aws-modules/aws//modules/fgt_ni_sg"
+  version  = "0.0.2"
 
   prefix             = "${local.prefix}-${each.value["id"]}"
   azs                = local.eu_sdwan_azs
@@ -34,7 +36,8 @@ module "eu_sdwan_nis" {
 # Create FGT config peer each FGT
 module "eu_sdwan_config" {
   for_each = { for i, v in local.eu_sdwan_config : "${v["sdwan_id"]}.${v["fgt_id"]}" => v }
-  source   = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//fgt_config?ref=v0.0.3"
+  source   = "jmvigueras/ftnt-aws-modules/aws//modules/fgt_config"
+  version  = "0.0.2"
 
   admin_cidr     = local.admin_cidr
   admin_port     = local.admin_port
@@ -60,21 +63,22 @@ data "template_file" "eu_sdwan_config_extra" {
 
   template = file("./templates/fgt_config_student.tpl")
   vars = {
-    external_ip         = element([for port in module.eu_sdwan_nis[each.value["sdwan_id"]].fgt_ports_config[each.value["fgt_id"]] : port["ip"] if port["tag"] == "public"], 0)
-    mapped_ip           = cidrhost(module.eu_sdwan_vpc[each.value["sdwan_id"]].subnet_cidrs["az1"]["bastion"], 10)
-    external_port       = "80"
-    mapped_port         = "80"
-    public_port         = element([for port in module.eu_sdwan_nis[each.value["sdwan_id"]].fgt_ports_config[each.value["fgt_id"]] : port["port"] if port["tag"] == "public"], 0)
-    private_port        = element([for port in module.eu_sdwan_nis[each.value["sdwan_id"]].fgt_ports_config[each.value["fgt_id"]] : port["port"] if port["tag"] == "private"], 0)
-    suffix              = "80"
-    tag_project_server  = "${local.tags["Project"]}-lab-server"
-    tag_project_student = "please-use-student-id" 
+    external_ip   = element([for port in module.eu_sdwan_nis[each.value["sdwan_id"]].fgt_ports_config[each.value["fgt_id"]] : port["ip"] if port["tag"] == "public"], 0)
+    mapped_ip     = cidrhost(module.eu_sdwan_vpc[each.value["sdwan_id"]].subnet_cidrs["az1"]["bastion"], 10)
+    external_port = "80"
+    mapped_port   = "80"
+    public_port   = element([for port in module.eu_sdwan_nis[each.value["sdwan_id"]].fgt_ports_config[each.value["fgt_id"]] : port["port"] if port["tag"] == "public"], 0)
+    private_port  = element([for port in module.eu_sdwan_nis[each.value["sdwan_id"]].fgt_ports_config[each.value["fgt_id"]] : port["port"] if port["tag"] == "private"], 0)
+    suffix        = "80"
+    lab_server_ip = local.lab_srv_private_ip
+    tag_student   = "please-use-student-id"
   }
 }
 # Create FGT for hub EU
 module "eu_sdwan" {
   for_each = { for i, v in local.eu_sdwan_spoke : i => v }
-  source   = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//fgt?ref=v0.0.3"
+  source   = "jmvigueras/ftnt-aws-modules/aws//modules/fgt"
+  version  = "0.0.2"
 
   prefix        = "${local.prefix}-${each.value["id"]}"
   region        = local.eu_region
@@ -90,7 +94,8 @@ module "eu_sdwan" {
 # Update private RT route RFC1918 cidrs to FGT NI and TGW
 module "eu_sdwan_vpc_routes" {
   for_each = { for i, v in local.eu_sdwan_spoke : i => v }
-  source   = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//vpc_routes?ref=v0.0.3"
+  source   = "jmvigueras/ftnt-aws-modules/aws//modules/vpc_routes"
+  version  = "0.0.2"
 
   ni_id     = module.eu_sdwan_nis[each.key].fgt_ids_map["az1.fgt1"]["port2.private"]
   ni_rt_ids = local.eu_sdwan_ni_rt_ids[each.key]

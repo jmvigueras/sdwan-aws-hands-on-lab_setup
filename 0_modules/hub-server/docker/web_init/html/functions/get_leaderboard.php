@@ -21,8 +21,7 @@ $sql = "SELECT `user_id`,`server_ip`,`server_check` FROM ".$table." WHERE server
 $data='';
 
 if ($result = mysqli_query($con,$sql)) {
-    while($row = mysqli_fetch_array($result))
-    {
+    while($row = mysqli_fetch_array($result)){
         $data .= '<br> User: <b>' . $row['user_id'] .'</b> ServerIP: '. $row['server_ip'] . ' Time: ' . $row['server_check'];
     }
 }

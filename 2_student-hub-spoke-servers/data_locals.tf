@@ -68,7 +68,6 @@ locals {
       route_map_out = "rm_out_hub_to_hub_0" //created by default add community 65001:10
     }
   ]
-  /*
   # VXLAN list of peers peer HUB to ON-PREMISES HUB with values need in config module
   eu_hub_to_op_vxlan_peers_list = [
     for i in range(0, length(keys(module.eu_hub_nis.fgt_ips_map))) :
@@ -93,14 +92,13 @@ locals {
       route_map_out = "rm_out_hub_to_hub_0" //created by default add community 65001:10
     }
   ]
-  */
   # Generate a map for each deployed FGT HUB with vxlan peers values
   eu_hub_vxlan_peers = zipmap(
     keys(module.eu_hub_nis.fgt_ips_map), [
       for i in range(0, length(keys(module.eu_hub_nis.fgt_ips_map))) : [
         local.eu_hub_cluster_vxlan_peers_list[i],
-        //  local.eu_hub_to_op_vxlan_peers_list[i],
-        //  local.eu_hub_to_us_hub_vxlan_peers_list[i]
+        local.eu_hub_to_op_vxlan_peers_list[i],
+        local.eu_hub_to_us_hub_vxlan_peers_list[i]
       ]
     ]
   )
@@ -115,7 +113,7 @@ locals {
   eu_op_private_ip  = ""
 
   //eu_hubs = concat(local.eu_hubs_cloud, local.eu_hubs_op)
-  eu_hubs = concat(local.eu_hubs_cloud)
+  eu_hubs = concat(local.eu_hubs_cloud, local.eu_hubs_op)
 
   # Define SDWAN HUB EMEA CLOUD
   eu_hubs_cloud = [for hub in local.eu_hub :
@@ -135,7 +133,6 @@ locals {
       sdwan_port        = hub["vpn_port"]
     }
   ]
-  /*
   # Define SDWAN HUB EMEA ON-PREM
   eu_hubs_op = [for hub in local.eu_op :
     {
@@ -154,7 +151,6 @@ locals {
       sdwan_port        = hub["vpn_port"]
     }
   ]
-  */
   # Create map of RT IDs where add routes pointing to a TGW ID
   eu_sdwan_ni_rt_ids = [
     for i in range(0, local.eu_sdwan_number) : {
@@ -173,7 +169,6 @@ locals {
     ]
   )
 
-  /*
   #-----------------------------------------------------------------------------------------------------
   # HUB EMEA ON-PREMISES 
   #-----------------------------------------------------------------------------------------------------
@@ -345,7 +340,6 @@ locals {
     ]
     ]
   )
-  */
 
 }
 
@@ -359,7 +353,7 @@ data "terraform_remote_state" "student_accounts" {
     path = "../1_student-accounts/terraform.tfstate"
   }
 }
-  
+
 data "http" "my-public-ip" {
   url = "http://ifconfig.me/ip"
 }

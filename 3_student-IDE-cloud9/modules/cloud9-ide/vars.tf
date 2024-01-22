@@ -7,7 +7,12 @@
 
 variable "instance_type" {
   description = "Instance type for cloud9 IDE"
-  default     = "t2.micro"
+  default     = "t3.micro"
+}
+
+variable "image_id" {
+  description = "Image ID for cloud9 IDE"
+  default     = "amazonlinux-2023-x86_64"
 }
 
 variable "user_arn" {

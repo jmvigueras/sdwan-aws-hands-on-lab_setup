@@ -1,5 +1,6 @@
 resource "aws_cloud9_environment_ec2" "cloud9_env" {
   instance_type = var.instance_type
+  image_id      = var.image_id
   name          = "${var.user_name}-env"
   subnet_id     = var.subnet_id
   tags          = var.tags

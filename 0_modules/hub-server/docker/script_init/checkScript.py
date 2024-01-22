@@ -6,9 +6,9 @@ import time
 from xmlrpc import server
 import mysql.connector
 import os
-#from dotenv import load_dotenv
 from pathlib import Path
 import requests
+#from dotenv import load_dotenv
 
 #######################################
 # Read variables to connect DataBase

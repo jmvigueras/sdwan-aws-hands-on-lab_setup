@@ -34,12 +34,10 @@ locals {
   lab_fqdn = "www.${data.aws_route53_zone.route53_zone.name}"
 
   # Lab server IP in bastion subnet
-  lab_srv_private_ip = cidrhost(module.eu_hub_vpc.subnet_cidrs["az1"]["bastion"], 10) // "x.x.x.202"
+  lab_srv_private_ip = cidrhost(module.eu_spoke_to_tgw["${local.eu_spoke_to_tgw_prefix}-0"].subnet_cidrs["az1"]["vm"], 10) // "x.x.x.74"
 
   # External ID token generated in deployent student
   externalid_token = data.terraform_remote_state.student_accounts.outputs.externalid_token
-  //externalid_token = "imgafmwkiozsgxxt42ixk5447ypz64"
-  random_url_db    = trimspace(random_string.db_url.result)
 
   # Instance type 
   lab_srv_type = "t3.large"
@@ -49,6 +47,8 @@ locals {
   git_uri_app_path = "/sdwan-aws-hands-on-lab_setup/0_modules/hub-server/"
 
   # DB
+  random_url_db = trimspace(random_string.db_url.result)
+
   db = {
     db_host  = "mysqldb"
     db_user  = "root"
@@ -97,8 +97,9 @@ locals {
 
   # EU VPC SPOKE TO TGW
   eu_spoke_to_tgw_number = 2
+  eu_spoke_to_tgw_prefix = "eu-spoke-to-tgw"
   eu_spoke_to_tgw = { for i in range(0, local.eu_spoke_to_tgw_number) :
-    "eu-spoke-to-tgw-${i}" => "10.10.${i + 100}.0/24"
+    "${local.eu_spoke_to_tgw_prefix}-${i}" => "10.10.${i + 100}.0/24"
   }
 
   #-----------------------------------------------------------------------------------------------------
@@ -192,7 +193,7 @@ locals {
 
   us_sdwan_spoke = [for i in range(0, local.us_sdwan_number) :
     { "id"      = "us-office-${i}"
-      "cidr"    = "192.168.${i + 200}.0/24"
+      "cidr"    = "10.3.${i}.0/24"
       "bgp_asn" = local.us_spoke_bgp_asn
     }
   ]

@@ -6,7 +6,8 @@
 #------------------------------------------------------------------------------
 # Create VPC for hub EU
 module "eu_hub_vpc" {
-  source = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//vpc?ref=v0.0.3"
+  source  = "jmvigueras/ftnt-aws-modules/aws//modules/vpc"
+  version = "0.0.2"
 
   prefix     = "${local.prefix}-eu-hub"
   admin_cidr = local.admin_cidr
@@ -20,7 +21,8 @@ module "eu_hub_vpc" {
 }
 # Create FGT NIs
 module "eu_hub_nis" {
-  source = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//fgt_ni_sg?ref=v0.0.3"
+  source  = "jmvigueras/ftnt-aws-modules/aws//modules/fgt_ni_sg"
+  version = "0.0.2"
 
   prefix             = "${local.prefix}-eu-hub"
   azs                = local.eu_azs
@@ -30,9 +32,12 @@ module "eu_hub_nis" {
   fgt_number_peer_az = local.eu_hub_number_peer_az
   cluster_type       = local.eu_hub_cluster_type
 }
+# Create FGTs Config
 module "eu_hub_config" {
+  source  = "jmvigueras/ftnt-aws-modules/aws//modules/fgt_config"
+  version = "0.0.2"
+
   for_each = { for k, v in module.eu_hub_nis.fgt_ports_config : k => v }
-  source   = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//fgt_config?ref=v0.0.3"
 
   admin_cidr     = local.admin_cidr
   admin_port     = local.admin_port
@@ -86,7 +91,8 @@ data "template_file" "eu_hub_config_extra" {
 }
 # Create FGT for hub EU
 module "eu_hub" {
-  source = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//fgt?ref=v0.0.3"
+  source  = "jmvigueras/ftnt-aws-modules/aws//modules/fgt"
+  version = "0.0.2"
 
   prefix        = "${local.prefix}-eu-hub"
   region        = local.eu_region
@@ -101,7 +107,8 @@ module "eu_hub" {
 }
 # Create TGW
 module "eu_tgw" {
-  source = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//tgw"
+  source  = "jmvigueras/ftnt-aws-modules/aws//modules/tgw"
+  version = "0.0.2"
 
   prefix = "${local.prefix}-eu-hub"
 
@@ -110,15 +117,14 @@ module "eu_tgw" {
 }
 # Create TGW attachment
 module "eu_hub_vpc_tgw_attachment" {
-  source = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//tgw_attachment?ref=v0.0.3"
+  source  = "jmvigueras/ftnt-aws-modules/aws//modules/tgw_attachment"
+  version = "0.0.2"
 
   prefix = "${local.prefix}-eu-hub"
 
   vpc_id         = module.eu_hub_vpc.vpc_id
   tgw_id         = module.eu_tgw.tgw_id
   tgw_subnet_ids = compact([for i, az in local.eu_azs : lookup(module.eu_hub_vpc.subnet_ids["az${i + 1}"], "tgw", "")])
-  //rt_association_id  = module.eu_tgw.rt_default_id
-  //rt_propagation_ids = [module.eu_tgw.rt_default_id]
 
   default_rt_association = true
   default_rt_propagation = true
@@ -126,7 +132,8 @@ module "eu_hub_vpc_tgw_attachment" {
 }
 # Create TGW attachment connect
 module "eu_hub_vpc_tgw_connect" {
-  source = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//tgw_connect?ref=v0.0.3"
+  source  = "jmvigueras/ftnt-aws-modules/aws//modules/tgw_connect"
+  version = "0.0.2"
 
   prefix = "${local.prefix}-eu-hub"
 
@@ -141,7 +148,8 @@ module "eu_hub_vpc_tgw_connect" {
 }
 # Update private RT route RFC1918 cidrs to FGT NI and TGW
 module "eu_hub_vpc_routes" {
-  source = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//vpc_routes?ref=v0.0.3"
+  source  = "jmvigueras/ftnt-aws-modules/aws//modules/vpc_routes"
+  version = "0.0.2"
 
   tgw_id = module.eu_tgw.tgw_id
   ni_id  = module.eu_hub_nis.fgt_ids_map["az1.fgt1"]["port2.private"]
@@ -154,8 +162,10 @@ module "eu_hub_vpc_routes" {
 #------------------------------------------------------------------------------
 # Create VPC spoke to TGW
 module "eu_spoke_to_tgw" {
+  source  = "jmvigueras/ftnt-aws-modules/aws//modules/vpc"
+  version = "0.0.2"
+
   for_each = local.eu_spoke_to_tgw
-  source   = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//vpc?ref=v0.0.3"
 
   prefix = "${local.prefix}-eu-tgw-spoke"
   azs    = local.eu_azs
@@ -167,8 +177,10 @@ module "eu_spoke_to_tgw" {
 }
 # Create TGW attachment
 module "eu_spoke_to_tgw_attachment" {
+  source  = "jmvigueras/ftnt-aws-modules/aws//modules/tgw_attachment"
+  version = "0.0.2"
+
   for_each = local.eu_spoke_to_tgw
-  source   = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//tgw_attachment?ref=v0.0.3"
 
   prefix = "${local.prefix}-${each.key}"
 
@@ -182,8 +194,10 @@ module "eu_spoke_to_tgw_attachment" {
 }
 # Update private RT route RFC1918 cidrs to FGT NI and TGW
 module "eu_spoke_to_tgw_routes" {
+  source  = "jmvigueras/ftnt-aws-modules/aws//modules/vpc_routes"
+  version = "0.0.2"
+
   for_each = local.eu_spoke_to_tgw
-  source   = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//vpc_routes?ref=v0.0.3"
 
   tgw_id = module.eu_tgw.tgw_id
   tgw_rt_ids = { for pair in setproduct(["vm"], [for i, az in local.eu_azs : "az${i + 1}"]) :
@@ -192,8 +206,10 @@ module "eu_spoke_to_tgw_routes" {
 }
 # Crate test VM in bastion subnet
 module "eu_spoke_to_tgw_vm" {
-  for_each = local.eu_spoke_to_tgw
-  source   = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//vm?ref=v0.0.3"
+  source  = "jmvigueras/ftnt-aws-modules/aws//modules/vm"
+  version = "0.0.2"
+
+  for_each = { for k, v in local.eu_spoke_to_tgw : k => v if k != "${local.eu_spoke_to_tgw_prefix}-0" } // create VM in all VPC TGW attached except 0
 
   prefix          = "${local.prefix}-${each.key}"
   keypair         = aws_key_pair.eu_keypair.key_name
@@ -201,7 +217,6 @@ module "eu_spoke_to_tgw_vm" {
   subnet_cidr     = module.eu_spoke_to_tgw[each.key].subnet_cidrs["az1"]["vm"]
   security_groups = [module.eu_spoke_to_tgw[each.key].sg_ids["default"]]
 }
-/*
 #------------------------------------------------------------------------------
 # Create TGW peering EU-US
 #------------------------------------------------------------------------------
@@ -226,7 +241,7 @@ resource "aws_ec2_transit_gateway_route" "eu_tgw_route_to_us_tgw" {
   transit_gateway_route_table_id = module.eu_tgw.rt_default_id
 }
 locals {
-  tgw_peer_eu_us_id = "" // Update from GUI after accept attachment  
+  tgw_peer_eu_us_id = "tgw-attach-0012b7d436060d107" // Update from GUI after accept attachment  
 }
 /*
 # Accept attachement at US side
@@ -241,6 +256,8 @@ resource "aws_ec2_transit_gateway_peering_attachment_accepter" "tgw_peer_eu_us_a
     local.tags
   )
 }
+*/
+
 # Create static route in TGW RouteTable US
 resource "aws_ec2_transit_gateway_route" "us_tgw_route_to_eu_tgw" {
   depends_on = [aws_ec2_transit_gateway_peering_attachment.tgw_peer_eu_us]
@@ -250,4 +267,3 @@ resource "aws_ec2_transit_gateway_route" "us_tgw_route_to_eu_tgw" {
   transit_gateway_attachment_id  = local.tgw_peer_eu_us_id
   transit_gateway_route_table_id = module.us_tgw.rt_default_id
 }
-*/

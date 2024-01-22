@@ -12,10 +12,10 @@
   </script> 
   </head>
   <body>
-    <h1><span style="color:Red">Fortinet</span> - Cloud workshops</h1>
+    <h1><span style="color:Red">Fortinet</span> - Cloud workshop</h1>
     <p></p>
     <hr/>
-    <h3>Introduce codigo del laboratorio:</h3>
+    <h3>Introduce identificador de laboratorio:</h3>
         <input type="text" id="tokenid" name="tokenid"> 
         <button id="btn1" type="button" onclick=redirect()>Go</button>
   </body>

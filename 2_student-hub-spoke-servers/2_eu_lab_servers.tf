@@ -3,7 +3,8 @@
 #--------------------------------------------------------------------------------------------
 # Create master node LAB server
 module "eu_hub_lab_server" {
-  source = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//vm?ref=v0.0.3"
+  source  = "jmvigueras/ftnt-aws-modules/aws//modules/vm"
+  version = "0.0.2"
 
   prefix        = "${local.prefix}-eu-hub"
   keypair       = aws_key_pair.eu_keypair.key_name
@@ -11,9 +12,9 @@ module "eu_hub_lab_server" {
   linux_os      = "amazon"
   user_data     = data.template_file.srv_user_data.rendered
 
-  subnet_id       = module.eu_hub_vpc.subnet_ids["az1"]["bastion"]
-  subnet_cidr     = module.eu_hub_vpc.subnet_cidrs["az1"]["bastion"]
-  security_groups = [module.eu_hub_vpc.sg_ids["default"]]
+  subnet_id       = module.eu_spoke_to_tgw["${local.eu_spoke_to_tgw_prefix}-0"].subnet_ids["az1"]["vm"]
+  subnet_cidr     = module.eu_spoke_to_tgw["${local.eu_spoke_to_tgw_prefix}-0"].subnet_cidrs["az1"]["vm"]
+  security_groups = [module.eu_spoke_to_tgw["${local.eu_spoke_to_tgw_prefix}-0"].sg_ids["default"]]
 
   tags = {
     Owner   = "${local.prefix}-lab-owner"
@@ -76,18 +77,18 @@ data "template_file" "srv_user_data_nginx_html" {
 # Crate test VM in bastion subnet
 module "eu_sdwan_vm" {
   for_each = { for i, v in local.eu_sdwan_spoke : i => v }
-  source   = "git::github.com/jmvigueras/terraform-ftnt-aws-modules//vm?ref=v0.0.3"
+  source   = "jmvigueras/ftnt-aws-modules/aws//modules/vm"
+  version  = "0.0.2"
 
-  prefix   = "${local.prefix}-${each.value["id"]}"
-  keypair  = aws_key_pair.eu_keypair.key_name
+  prefix  = "${local.prefix}-${each.value["id"]}"
+  keypair = aws_key_pair.eu_keypair.key_name
 
   subnet_id       = module.eu_sdwan_vpc[each.key].subnet_ids["az1"]["bastion"]
   subnet_cidr     = module.eu_sdwan_vpc[each.key].subnet_cidrs["az1"]["bastion"]
   security_groups = [module.eu_sdwan_vpc[each.key].sg_ids["default"]]
 
   tags = {
-    Owner   = "${local.prefix}-lab-owner"
-    Name    = "${local.prefix}-${each.value["id"]}-vm"
-    Project = each.value["student_id"]
+    Owner = each.value["student_id"]
+    Name  = "${local.prefix}-${each.value["id"]}-vm"
   }
 }

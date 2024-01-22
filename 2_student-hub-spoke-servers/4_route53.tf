@@ -61,7 +61,6 @@ resource "aws_route53_record" "eu_hub_vpn_fqdn" {
   health_check_id = aws_route53_health_check.eu_hub_vpn_fqdn_hck_parent.id
 }
 
-/*
 #-----------------------------------------------------------------------------------------------------
 # Create new Route53 record - VPN DDNS - EMEA OP
 #-----------------------------------------------------------------------------------------------------
@@ -177,4 +176,15 @@ resource "aws_route53_record" "us_op_vpn_fqdn" {
 
   health_check_id = aws_route53_health_check.us_op_vpn_fqdn_hck_parent.id
 }
-*/
+
+#-----------------------------------------------------------------------------------------------------
+# Create new Route53 record - FAZ
+#-----------------------------------------------------------------------------------------------------
+# Create Route53 record entry for faz
+resource "aws_route53_record" "faz_fqdn" {
+  zone_id = data.aws_route53_zone.route53_zone.zone_id
+  name    = "faz.${data.aws_route53_zone.route53_zone.name}"
+  type    = "A"
+  ttl     = 300
+  records = [module.eu_faz.faz["public_ip"]]
+}

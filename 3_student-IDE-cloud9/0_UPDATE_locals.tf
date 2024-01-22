@@ -15,7 +15,7 @@ locals {
   }
 
   # Number of user peer region
-  vpc_cloud9_cidr = "172.30.0.0/23"
+  vpc_cloud9_cidr = "10.40.0.0/23"
 
   # Path prefix for users (regex /path-prefix/)
   user_path_prefix = "/aws2024hol/"

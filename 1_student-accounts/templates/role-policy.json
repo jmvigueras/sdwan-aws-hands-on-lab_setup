@@ -71,6 +71,7 @@
             "Condition": {
                 "ForAnyValue:StringNotEquals": {
                     "ec2:InstanceType": [
+                        "t2.micro",
                         "t3.micro",
                         "t3.small",
                         "c6i.large",
@@ -118,8 +119,8 @@
             ],
             "Resource": "*",
             "Condition": {
-                "StringNotEquals": {
-                    "aws:RequestTag/Owner": "${user_name}"
+                "ForAnyValue:StringNotLike": {
+                    "aws:ResourceTag/Owner": "${user_name}"
                 }
             }
         },
